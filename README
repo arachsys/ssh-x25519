@@ -1,0 +1,43 @@
+ssh-x22519
+==========
+
+The twisted Edwards curve used for ed25519 signatures is birationally
+equivalent to the Montgomery curve used for x25519: it is straightforward
+to map ssh-ed25519 public keys into x25519 public keys corresponding to the
+same secret scalar.
+
+This tool is a simple command-line wrapper around the high-quality Go crypto
+libraries to perform this conversion.
+
+If ~/.ssh/id_ed25519 and ~/.ssh/id_ed25519.pub are matching ssh-ed25519
+private and public keyfiles, the outputs of
+
+  ssh-x25519 ~/.ssh/id_ed25519
+
+and
+
+  ssh-x25519 ~/.ssh/id_ed25519.pub
+
+are matching 32-byte x25519 private and public keys respectively. Private
+keys are cofactor multiples and invariant under RFC 7748 scalar clamping,
+so are interoperable with both clamped and non-clamped key exchange.
+
+When the supplied keyfile is encrypted, ssh-x25519 will prompt for the
+passphrase in the usual way before attempting to extract the private key.
+
+
+Building and installing
+-----------------------
+
+To build the ssh-x25519 binary, run 'go build' in the source tree. To
+install, copy it into a directory on your path. ssh-x25519 should compile
+and run on any platform with Go 1.17 or later.
+
+Please report any problems or bugs to Chris Webb <chris@arachsys.com>.
+
+
+Copying
+-------
+
+ssh-x25519 was written by Chris Webb <chris@arachsys.com> and is distributed
+as Free Software under the terms of the MIT license in COPYING.
