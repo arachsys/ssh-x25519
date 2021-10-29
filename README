@@ -1,10 +1,11 @@
 ssh-x22519
 ==========
 
-The twisted Edwards curve used for ed25519 signatures is birationally
-equivalent to the Montgomery curve used for x25519: it is straightforward
-to map ssh-ed25519 public keys into x25519 public keys corresponding to the
-same secret scalar.
+The twisted Edwards curve used for Ed25519 signatures is birationally
+equivalent to the Montgomery curve used for X25519. In Ed25519, the secret
+scalar is half of the private key's SHA512 hash, whereas X25519 uses the
+private key directly as a scalar. It is therefore straightforward to map
+ssh-ed25519 keys into X25519 keys preserving keypair correspondence.
 
 This tool is a simple command-line wrapper around the high-quality Go crypto
 libraries to perform this conversion.
@@ -18,12 +19,32 @@ and
 
   ssh-x25519 ~/.ssh/id_ed25519.pub
 
-are matching 32-byte x25519 private and public keys respectively. Private
+are matching 32-byte X25519 private and public keys respectively. Private
 keys are cofactor multiples and invariant under RFC 7748 scalar clamping,
 so are interoperable with both clamped and non-clamped key exchange.
 
 When the supplied keyfile is encrypted, ssh-x25519 will prompt for the
 passphrase in the usual way before attempting to extract the private key.
+
+
+Rationale
+---------
+
+OpenSSH keys are ubiquitous for login authentication and use sensible modern
+cryptography in their ssh-ed25519 incarnation. Recent OpenSSH also supports
+data signatures with 'ssh-keygen -Y sign' and 'ssh-keygen -Y verify'. These
+have now been adopted by git to sign commits as an alternative to OpenPGP,
+which is showing its age in complexity and cryptographic eccentricity.
+
+As their role expands to more general-purpose identification, it will become
+increasingly convenient to use OpenSSH identities in contexts such as file
+encryption or triple-DH exchange to establish a forward-secure session,
+with simple, easy-to-audit X25519 libraries.
+
+The ssh-x25519 tool was written in Go rather than C to take advantage of its
+unusually comprehensive and well-maintained crypto libraries. These already
+support parsing, extracting and transforming ssh-ed25519 keys, so only
+minimal wrapper code is needed to provide a complete command-line interface.
 
 
 Building and installing
